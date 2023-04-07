@@ -1,7 +1,7 @@
 package main
 
 import (
-    "fmt"
+    // "fmt"
     // "net/http"
 	// "encoding/json"
 	// Go用のLambdaプログラミングモデル
@@ -23,24 +23,27 @@ type Event struct {
 func DBOperateAPI(req events.APIGatewayProxyRequest) () {
     db := dynamo.New(session.New(), &aws.Config{Region: aws.String("ap-northeast-1")})
     table := db.Table("PrefecturesTable")
-    prefecture_name := req.QueryStringParameters["PrefectureName"]
-    prefecture_region := req.QueryStringParameters["Region"]
-    var result Event
-    // resultをprintfすると⇒{Hokkaido Hokkaido Sapporo}
-    err := table.Get("PrefectureName", prefecture_name).Range("Region", dynamo.Equal, prefecture_region).One(&result)
+    switch req.HTTPMethod {
+    case "GET":
+        prefecture_name := req.QueryStringParameters["PrefectureName"]
+        prefecture_region := req.QueryStringParameters["Region"]
+        var result Event
+        // resultをprintfすると⇒{Hokkaido Hokkaido Sapporo}
+        table.Get("PrefectureName", prefecture_name).Range("Region", dynamo.Equal, prefecture_region).One(&result)
+        // printでresultを表示して、一旦ブログにする
 
-    // resultsをprintfすると⇒[{Hokkaido Hokkaido Sapporo}]
-    // table.Get("PrefectureName", prefecture_name).All(&results)
-
-    // switch req.HTTPMethod {
-    // case "GET":
-	// 	username := req.QueryStringParameters["UserName"]
-    //     var result Event
-    //     err := table.Get("UserName", username).One(&result)
-    // // case "POST":
+        // resultsをprintfすると⇒[{Hokkaido Hokkaido Sapporo}]
+        // table.Get("PrefectureName", prefecture_name).All(&results)
+        // 変換してresponseに入れる部分はAPIGateway入れた版で書く
+    case "POST":
+        prefecture_name := req.QueryStringParameters["PrefectureName"]
+        prefecture_region := req.QueryStringParameters["Region"]
+        prefecture_capital := req.QueryStringParameters["PrefecturalCapital"]
+        evt := Event{PrefectureName: prefecture_name, Region: prefecture_region, PrefecturalCapital: prefecture_capital}
+        table.Put(evt).Run()
     // default:
     //     return clientError(http.StatusMethodNotAllowed)
-    // }
+    }
 }
 
 func main() {
