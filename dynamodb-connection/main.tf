@@ -6,14 +6,7 @@ terraform {
             version = "~> 4.51.0"
         }
     }
-    #tfstateファイルをS3に配置する(配置先のS3は事前に作成済み)
-    # backend s3 {
-    #     bucket = "sora-tfstate-bucket"
-    #     region = "ap-northeast-1"
-    #     key    = "tf-dynamo-test.tfstate"
-    # }
 }
-
 #AWSプロバイダーの定義
 provider aws {
     region = "ap-northeast-1"
@@ -30,14 +23,12 @@ data aws_iam_policy_document assume_role {
         actions = ["sts:AssumeRole"]
     }
 }
-
 #Lambda用IAMロールの作成
 resource aws_iam_role iam_for_lambda {
     name               = "Prefecture_Lambda_Role"
     assume_role_policy = data.aws_iam_policy_document.assume_role.json
-    # dynamodbへのアクセス権限を振る必要がある
+    managed_policy_arns=["arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"]
 }
-
 
 #Lambdaへの配置ファイルのzip化
 data archive_file lambda {
@@ -45,7 +36,6 @@ data archive_file lambda {
     source_file = "dynamodbapi"
     output_path = "handler.zip"
 }
-
 #Lambdaの作成
 resource aws_lambda_function Prefecture_Lambda {
     filename      = "handler.zip"
@@ -71,12 +61,12 @@ resource aws_dynamodb_table prefecture_table {
         type = "S"
     }
 }
-
+#初期データファイルの取得
 locals {
     csv_data = file("prefectual.csv")
     dataset = csvdecode(local.csv_data)
 }
-
+#テーブルアイテムの登録
 resource aws_dynamodb_table_item table_item {
     for_each = { for record in local.dataset : record.prefecturename => record }
     table_name = aws_dynamodb_table.prefecture_table.name

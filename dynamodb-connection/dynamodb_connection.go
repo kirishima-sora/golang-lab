@@ -1,9 +1,9 @@
 package main
 
 import (
-    // "fmt"
+    "fmt"
+    // "encoding/json"
     // "net/http"
-	// "encoding/json"
 	// Go用のLambdaプログラミングモデル
     "github.com/aws/aws-lambda-go/lambda"
     "github.com/aws/aws-lambda-go/events"
@@ -26,14 +26,14 @@ func DBOperateAPI(req events.APIGatewayProxyRequest) () {
     switch req.HTTPMethod {
     case "GET":
         prefecture_name := req.QueryStringParameters["PrefectureName"]
-        prefecture_region := req.QueryStringParameters["Region"]
-        var result Event
+        // prefecture_region := req.QueryStringParameters["Region"]
+        // var result Event
+        var results []Event
         // resultをprintfすると⇒{Hokkaido Hokkaido Sapporo}
-        table.Get("PrefectureName", prefecture_name).Range("Region", dynamo.Equal, prefecture_region).One(&result)
-        // printでresultを表示して、一旦ブログにする
-
+        // table.Get("PrefectureName", prefecture_name).Range("Region", dynamo.Equal, prefecture_region).One(&result)
         // resultsをprintfすると⇒[{Hokkaido Hokkaido Sapporo}]
-        // table.Get("PrefectureName", prefecture_name).All(&results)
+        table.Get("PrefectureName", prefecture_name).All(&results)
+        fmt.Printf("%v\n", results)
         // 変換してresponseに入れる部分はAPIGateway入れた版で書く
     case "POST":
         prefecture_name := req.QueryStringParameters["PrefectureName"]
@@ -41,8 +41,6 @@ func DBOperateAPI(req events.APIGatewayProxyRequest) () {
         prefecture_capital := req.QueryStringParameters["PrefecturalCapital"]
         evt := Event{PrefectureName: prefecture_name, Region: prefecture_region, PrefecturalCapital: prefecture_capital}
         table.Put(evt).Run()
-    // default:
-    //     return clientError(http.StatusMethodNotAllowed)
     }
 }
 

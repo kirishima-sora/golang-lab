@@ -1,10 +1,10 @@
-module test
+module dynamodb-connection
 
 go 1.18
 
 require (
 	github.com/aws/aws-lambda-go v1.39.1
-	github.com/aws/aws-sdk-go v1.44.238
+	github.com/aws/aws-sdk-go v1.44.239
 	github.com/guregu/dynamo v1.19.0
 )
 
