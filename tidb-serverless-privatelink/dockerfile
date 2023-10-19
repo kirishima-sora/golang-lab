@@ -1,0 +1,12 @@
+FROM golang:1.21.3-alpine
+
+WORKDIR /app
+
+RUN apk update && apk add git
+
+COPY /src .
+
+RUN go mod init app
+RUN go get github.com/go-sql-driver/mysql
+RUN go mod tidy
+CMD go run main.go
