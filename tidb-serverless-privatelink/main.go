@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "crypto/tls"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
