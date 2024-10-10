@@ -1,0 +1,11 @@
+# ベースイメージとしてlocustio/locustを使う
+FROM locustio/locust
+
+# 作業ディレクトリを設定する
+WORKDIR /locust
+
+# ホストのlocustfile.pyをコンテナにコピーする
+COPY locustfile.py /locust/locustfile.py
+
+# Locustを実行するコマンドを指定する
+CMD ["-f", "/locust/locustfile.py"]
