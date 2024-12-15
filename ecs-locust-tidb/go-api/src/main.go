@@ -13,7 +13,7 @@ const port = "8080"
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	// データベース接続
-	// TiDB Cloudにて表示されたコード（★公開時は書き換える）
+	// TiDB Cloudにて表示されたコード
 	mysql.RegisterTLSConfig("tidb", &tls.Config{
 		MinVersion: tls.VersionTLS12,
 		ServerName: "{TiDBホスト名}",
